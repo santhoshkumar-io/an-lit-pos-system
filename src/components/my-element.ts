@@ -8,6 +8,8 @@ import "./container/home/home";
 import "./container/home/product-invertory/product-inventory";
 import "./container/home/back-btn";
 import "./container/home/product-management-system/product-management-system";
+import "./container/home/order-processing-system/order-processing-system"
+import "./container/home/order-processing-system/orders"
 @customElement("my-element")
 export class MyElement extends LitElement {
   render() {

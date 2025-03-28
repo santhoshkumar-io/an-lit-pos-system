@@ -1,5 +1,5 @@
 import { LitElement, html, css } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 @customElement("back-btn")
 export default class BackBtn extends LitElement {
@@ -25,13 +25,14 @@ export default class BackBtn extends LitElement {
       padding-bottom: 2px;
     }
   `;
-
+  @property({ type: String }) where = "home";
   sendDataToParent($event: any) {
+    console.log(this.where);
     $event.stopPropagation();
     this.dispatchEvent(
       new CustomEvent("on-action", {
         detail: {
-          type: "home",
+          type: this.where,
         },
       })
     );

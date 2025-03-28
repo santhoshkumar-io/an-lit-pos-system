@@ -197,7 +197,6 @@ export default class ProductManagement extends LitElement {
       padding: 15px;
       margin-top: 12px;
     }
-
     .footer p {
       margin: 0;
       font-size: 0.9rem;
@@ -213,25 +212,187 @@ export default class ProductManagement extends LitElement {
     { id: 33, name: "Hammer", price: 12.75, discountedPrice: null },
     { id: 55, name: "Wrench", price: 15.0, discountedPrice: null },
   ];
+
+  @property({ type: Boolean }) isUpdating = false;
+  @property({ type: Number }) updatingProductId: number | null = null;
   handleAddProduct() {
-    const productId = Number(
-      (this.shadowRoot?.querySelector("#id") as HTMLInputElement).value
-    );
-    const productName = (
-      this.shadowRoot?.querySelector("#name") as HTMLInputElement
-    ).value;
-    const productPrice = Number(
-      (this.shadowRoot?.querySelector("#price") as HTMLInputElement).value
-    );
-    if (!isNaN(productId) && productName != "" && !isNaN(productPrice)) {
-      if (this.products.find((product) => product.id === productId)) {
-      }
+    const idInput = this.shadowRoot?.querySelector("#id") as HTMLInputElement;
+    const nameInput = this.shadowRoot?.querySelector(
+      "#name"
+    ) as HTMLInputElement;
+    const priceInput = this.shadowRoot?.querySelector(
+      "#price"
+    ) as HTMLInputElement;
+
+    const id = Number(idInput.value);
+    const name = nameInput.value.trim();
+    const price = Number(priceInput.value);
+
+    if (!id || !name || !price) {
+      this.showError("All fields are required!");
+      return;
     }
+
+    if (this.products.some((p) => p.id === id)) {
+      this.showError("Product ID already exists!");
+      return;
+    }
+    const newProduct: Product = { id, name, price, discountedPrice: null };
+    this.products = [...this.products, newProduct];
+
+    idInput.value = "";
+    nameInput.value = "";
+    priceInput.value = "";
+
+    this.showSuccess("Product added successfully!");
+
+    console.log(this.products);
   }
-  handleUpdate() {}
+  handleUpdateProduct() {
+    const idInput = this.shadowRoot?.querySelector("#id") as HTMLInputElement;
+    const nameInput = this.shadowRoot?.querySelector(
+      "#name"
+    ) as HTMLInputElement;
+    const priceInput = this.shadowRoot?.querySelector(
+      "#price"
+    ) as HTMLInputElement;
+    const id = parseInt(idInput.value);
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+
+    if (!name || !price) {
+      this.showError("All fields are required!");
+      return;
+    }
+
+    const product = this.products.find((p) => p.id === id);
+    if (!product) {
+      this.showError("Product not found!");
+
+      return;
+    }
+    product.name = name;
+    product.price = price;
+    product.discountedPrice = null;
+
+    idInput.value = "";
+    nameInput.value = "";
+    priceInput.value = "";
+    idInput.disabled = false;
+    this.isUpdating = false;
+    this.updatingProductId = null;
+
+    (
+      this.shadowRoot?.querySelector("#update-product") as HTMLButtonElement
+    ).style.display = "none";
+    (
+      this.shadowRoot?.querySelector("#add-product") as HTMLButtonElement
+    ).disabled = false;
+    this.showSuccess("Product updated successfully!");
+  }
+  handleApplyDiscount() {
+    const discountInput = this.shadowRoot?.querySelector(
+      "#discount"
+    ) as HTMLInputElement;
+    if (!discountInput) return;
+
+    const discount = parseFloat(discountInput.value);
+
+    if (isNaN(discount) || discount < 0 || discount > 100) {
+
+      return;
+    }
+
+    this.products = this.products.map((product) => ({
+      ...product,
+      discountedPrice: product.price - (product.price * discount) / 100,
+    }));
+
+    (
+      this.shadowRoot?.querySelector(
+        "#discounted-products-section"
+      ) as HTMLElement
+    ).style.display = "block";
+
+  }
+
+  private handleUpdate(productId: number): void {
+    const product = this.products.find((p) => p.id === productId);
+    if (!product) {
+      this.showError("Product not found!");
+      return;
+    }
+    const idInput = this.shadowRoot?.querySelector("#id") as HTMLInputElement;
+    const nameInput = this.shadowRoot?.querySelector(
+      "#name"
+    ) as HTMLInputElement;
+    const priceInput = this.shadowRoot?.querySelector(
+      "#price"
+    ) as HTMLInputElement;
+    const updateProductBtn = this.shadowRoot?.querySelector(
+      "#update-product"
+    ) as HTMLButtonElement;
+    const addProductBtn = this.shadowRoot?.querySelector(
+      "#add-product"
+    ) as HTMLButtonElement;
+
+    if (
+      !idInput ||
+      !nameInput ||
+      !priceInput ||
+      !updateProductBtn ||
+      !addProductBtn
+    )
+      return;
+
+    idInput.value = product.id.toString();
+    nameInput.value = product.name;
+    priceInput.value = product.price.toString();
+
+    idInput.disabled = true;
+    this.isUpdating = true;
+    this.updatingProductId = productId;
+
+    updateProductBtn.style.display = "block";
+    addProductBtn.disabled = true;
+  }
+  showMessage(message: string, type: "success" | "error") {
+    const messageBox = this.shadowRoot?.querySelector(
+      "#warning-message"
+    ) as HTMLElement | null;
+    if (!messageBox) return;
+
+    messageBox.textContent = message;
+    messageBox.className = `warning-message ${type}`; // Apply either success or error styling
+    messageBox.style.display = "block";
+
+    setTimeout(() => {
+      messageBox.style.display = "none";
+    }, 3000);
+  }
+
+  showSuccess(message: string) {
+    this.showMessage(message, "success");
+  }
+
+  showError(message: string) {
+    this.showMessage(message, "error");
+  }
+
+  sendDataToParent(data: any) {
+    this.dispatchEvent(
+      new CustomEvent("on-action", {
+        detail: {
+          type: data.detail.type,
+        },
+      })
+    );
+  }
   render() {
     return html`
       <div>
+        <back-btn @on-action=${this.sendDataToParent}></back-btn>
+
         <div class="products-wrap">
           <div class="form-container">
             <form id="product-form" class="form">
@@ -260,7 +421,7 @@ export default class ProductManagement extends LitElement {
                   type="button"
                   id="update-product"
                   style="display: none;"
-                  @click=${this.handleUpdate}
+                  @click=${() => this.handleUpdateProduct()}
                 >
                   Update Product
                 </button>
@@ -289,7 +450,11 @@ export default class ProductManagement extends LitElement {
                         <td>${product.name}</td>
                         <td>${product.price.toFixed(2)}</td>
                         <td>
-                          <button class="update-btn" data-id="${product.id}">
+                          <button
+                            class="update-btn"
+                            data-id="${product.id}"
+                            @click=${() => this.handleUpdate(product.id)}
+                          >
                             Update
                           </button>
                         </td>
@@ -304,7 +469,9 @@ export default class ProductManagement extends LitElement {
 
         <div class="actions">
           <input type="number" id="discount" placeholder="Enter discount (%)" />
-          <button id="apply-discount">Apply Discount</button>
+          <button id="apply-discount" @click="${this.handleApplyDiscount}">
+            Apply Discount
+          </button>
         </div>
         <div id="discounted-products-section" style="display: none;">
           <table id="discounted-products-table">
@@ -316,6 +483,7 @@ export default class ProductManagement extends LitElement {
                 <th>Discounted Price</th>
               </tr>
             </thead>
+
             <tbody>
               ${this.products.map((product) => {
                 return html`
@@ -324,9 +492,9 @@ export default class ProductManagement extends LitElement {
                     <td>${product.name}</td>
                     <td>${product.price.toFixed(2)}</td>
                     <td>
-                      <button class="update-btn" data-id="${product.id}">
-                        Update
-                      </button>
+                      ${product.discountedPrice
+                        ? product.discountedPrice.toFixed(2)
+                        : "N/A"}
                     </td>
                   </tr>
                 `;

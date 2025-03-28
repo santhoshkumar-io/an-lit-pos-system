@@ -7,6 +7,9 @@ export default class Container extends LitElement {
   static styles = css`
     main {
       padding: 40px;
+      padding-bottom:0px;
+      background-color: #f1f1f1;
+      height: 100%;
     }
   `;
 
@@ -26,8 +29,15 @@ export default class Container extends LitElement {
       "product-inventory": html`<product-inventory
         @on-action="${this.handleOnActionEvent}"
       ></product-inventory>`,
-      "product-management-system": html`<product-management-system></product-management-system>`,
-      "order-processing-system": html`<p>Order Management</p>`,
+      "product-management-system": html`<product-management-system
+        @on-action="${this.handleOnActionEvent}"
+      ></product-management-system>`,
+      "order-processing-system": html`<order-processing-system
+        @on-action="${this.handleOnActionEvent}"
+      ></order-processing-system>`,
+      orders: html`<view-orders
+        @on-action="${this.handleOnActionEvent}"
+      ></view-orders>`,
     };
   }
 
