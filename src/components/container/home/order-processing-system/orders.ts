@@ -20,33 +20,13 @@ interface Order {
 @customElement("view-orders")
 export default class Orders extends LitElement {
   static styles = css`
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-
-    h1 {
-      text-align: center;
-      background-color: #ffffff6c;
-      backdrop-filter: blur(3px);
-      margin: 0;
-      padding: 0.67rem;
-      position: sticky;
-      top: 0;
-      z-index: 100000000;
-    }
-    h2 {
-      text-align: center;
-      color: #222;
-      margin-bottom: 20px;
-    }
     .container {
       max-width: 800px;
       margin: auto;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
     .orders-container {
@@ -111,12 +91,7 @@ export default class Orders extends LitElement {
     .order-right p,
     #name {
       color: rgb(20, 82, 124);
-    font-weight:bold;
-    }
-    .order-right p span {
-      background-color: rgb(255, 199, 45);
-      border-radius:10px ;
-      
+      font-weight: bold;
     }
     .card.expanded {
       background-color: #f1f1f1;
@@ -166,18 +141,6 @@ export default class Orders extends LitElement {
     .order-details p span {
       font-weight: 700;
     }
-    .footer {
-      background-color: #222;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      margin-top: 12px;
-    }
-
-    .footer p {
-      margin: 0;
-      font-size: 0.9rem;
-    }
 
     .wrapper {
       display: flex;
@@ -192,24 +155,18 @@ export default class Orders extends LitElement {
   deleteOrder(orderId: string) {
     if (!orderId) return;
 
-    // Get orders from localStorage
     let orders: Order[] = JSON.parse(localStorage.getItem("orders") || "[]");
 
-    // Filter out the deleted order
     orders = orders.filter((order) => order.orderId !== orderId);
 
-    // Update localStorage
     localStorage.setItem("orders", JSON.stringify(orders));
 
-    // Update state to trigger re-render
     this.orders = [...orders];
   }
   handleToggle(e: Event) {
-    // Find the specific card that was clicked
     const card = (e.target as HTMLElement).closest(".card");
-    if (!card) return; // If no card found, exit
+    if (!card) return;
 
-    // Toggle the "expanded" class on that specific card
     card.classList.toggle("expanded");
   }
   sendDataToParent(data: any) {

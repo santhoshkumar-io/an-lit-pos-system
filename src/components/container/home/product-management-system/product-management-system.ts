@@ -11,7 +11,6 @@ interface Product {
 @customElement("product-management-system")
 export default class ProductManagement extends LitElement {
   static styles = css`
-    /* General Reset and Body Styles */
     h3 {
       color: #777;
     }
@@ -201,6 +200,11 @@ export default class ProductManagement extends LitElement {
       margin: 0;
       font-size: 0.9rem;
     }
+    .wrapper {
+      display: flex;
+      gap: 20px;
+      flex-direction: column;
+    }
   `;
 
   @property({ type: Array })
@@ -299,7 +303,6 @@ export default class ProductManagement extends LitElement {
     const discount = parseFloat(discountInput.value);
 
     if (isNaN(discount) || discount < 0 || discount > 100) {
-
       return;
     }
 
@@ -313,7 +316,6 @@ export default class ProductManagement extends LitElement {
         "#discounted-products-section"
       ) as HTMLElement
     ).style.display = "block";
-
   }
 
   private handleUpdate(productId: number): void {
@@ -390,7 +392,7 @@ export default class ProductManagement extends LitElement {
   }
   render() {
     return html`
-      <div>
+      <div class="wrapper">
         <back-btn @on-action=${this.sendDataToParent}></back-btn>
 
         <div class="products-wrap">

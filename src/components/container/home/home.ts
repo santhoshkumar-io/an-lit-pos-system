@@ -70,7 +70,6 @@ export default class Home extends LitElement {
 
   sendDataToParent($event: any) {
     $event.stopPropagation();
-    // Dispatching a custom event with data
     this.dispatchEvent(
       new CustomEvent("on-action", {
         detail: {

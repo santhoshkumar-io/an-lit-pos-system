@@ -20,27 +20,6 @@ interface Order {
 @customElement("order-processing-system")
 export default class ProductManagement extends LitElement {
   static styles = css`
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
-    h1 {
-      background-color: #ffffff6c;
-      backdrop-filter: blur(3px);
-      color: #222;
-      text-align: center;
-      margin: 0;
-      padding: 0.67rem 0;
-    }
-
-    h3 {
-      text-align: center;
-      color: #333;
-    }
-
     label {
       font-weight: bold;
       margin-bottom: 5px;
@@ -266,7 +245,7 @@ export default class ProductManagement extends LitElement {
     { id: 8, name: "Keyboard", price: 200 },
     { id: 9, name: "Toy", price: 100 },
   ];
-  @state() cart: Product[] = []; // Make it reactive
+  @state() cart: Product[] = [];
   @state() total = 0;
   @state() orders: Order[] = [];
 
@@ -278,7 +257,6 @@ export default class ProductManagement extends LitElement {
 
     let productExists = false;
 
-    // UPDATED: Fixed cart update logic to prevent duplicate products
     const updatedCart = this.cart.map((product) => {
       if (product.id === selectedProduct.id) {
         productExists = true;
@@ -291,7 +269,7 @@ export default class ProductManagement extends LitElement {
       updatedCart.push({ ...selectedProduct, quantity: 1 });
     }
 
-    this.cart = updatedCart; // UPDATED: Ensuring reactivity
+    this.cart = updatedCart;
     this.updateTotal();
   }
 
@@ -313,7 +291,6 @@ export default class ProductManagement extends LitElement {
       this.shadowRoot?.querySelector("#product-selector") as HTMLInputElement
     ).value;
 
-    // UPDATED: Improved validation logic
     if (
       !customerName ||
       !/^[6-9]\d{9}$/.test(mobileNumber) ||
@@ -324,7 +301,7 @@ export default class ProductManagement extends LitElement {
     }
 
     this.addToCart(selectedId);
-    this.disableFormFields(); // UPDATED: Disable form fields after adding to cart
+    this.disableFormFields();
   }
   handleRemoveProduct(event: Event) {
     const target = event.target as HTMLButtonElement;
@@ -342,8 +319,7 @@ export default class ProductManagement extends LitElement {
   handleQuantityChange(event: Event) {
     const target = event.target as HTMLButtonElement;
     const productId = Number(target.dataset.id);
-    const action = target.dataset.action; // "increase" or "decrease"
-
+    const action = target.dataset.action;
     if (!productId || !action) return;
 
     this.cart = this.cart
@@ -358,14 +334,14 @@ export default class ProductManagement extends LitElement {
           }
 
           if (newQuantity === 0) {
-            return null; // Mark for removal
+            return null;
           }
 
           return { ...product, quantity: newQuantity };
         }
         return product;
       })
-      .filter(Boolean) as Product[]; // Remove null values (products with quantity 0)
+      .filter(Boolean) as Product[];
 
     this.updateTotal();
   }
@@ -504,7 +480,7 @@ export default class ProductManagement extends LitElement {
     } else {
       nameError.classList.add("hidden");
     }
-    this.validateForm(); // Check if the whole form is valid
+    this.validateForm();
   }
 
   validateMobileNumber() {
@@ -521,7 +497,7 @@ export default class ProductManagement extends LitElement {
     } else {
       mobileError.classList.add("hidden");
     }
-    this.validateForm(); // Check if the whole form is valid
+    this.validateForm();
   }
 
   validateProductSelection() {
